@@ -1,0 +1,1 @@
+const res=document.getElementById('res');function run(){res.innerText='FS ops: '+(code.value.match(/read|write/g)||[]).length;}

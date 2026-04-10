@@ -1,0 +1,1 @@
+const res=document.getElementById('res');function run(){res.innerText='Req/s: '+(+req.value/+time.value).toFixed(2);}
