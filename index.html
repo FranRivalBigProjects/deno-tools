@@ -1,141 +1,910 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
-    <title>Deno Tools – Performance, Security, Permissions & Runtime Analysis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="PkLa_ViOo6FAHpvh8SacceMb95o9tePRdrqLNBz9X1M" />
+<meta name="robots" content="index, follow">
 
-    <meta name="description" content="Analyze Deno runtime with tools for performance, memory, permissions, security, module loading, HTTP, WebSockets and deployment.">
+<title>Deno.js – What It Is, How It Works &amp; Deno vs Node.js Complete Guide</title>
 
-    <meta name="keywords" content="deno performance tools, deno permission model, deno security sandbox, deno module loader analysis, deno http server performance, deno vs node tools">
+<meta name="description" content="Complete Deno.js reference. What is Deno.js, how the permission model works, Deno vs Node.js comparison, TypeScript support, standard library, and code examples. Developer tools and runtime analysis.">
 
-    <link rel="canonical" href="/deno-tools/">
+<meta name="keywords" content="deno.js, deno js, what is deno, deno vs node, deno permission model, deno typescript, deno runtime, deno javascript, deno security model, deno fresh framework, deno install">
+
+<link rel="canonical" href="https://franrivalbigprojects.github.io/deno-tools/">
+
+<meta property="og:title" content="Deno.js – Complete Guide, Permission Model & Node.js Comparison">
+<meta property="og:description" content="What is Deno.js, how it works, permission model, TypeScript support, and comparison with Node.js. Developer reference and tools.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #05080f;
+  --surface: #09101a;
+  --surface2: #0d1622;
+  --border: #121e30;
+  --border2: #182c44;
+  --deno: #01b38a;
+  --deno-dim: rgba(1,179,138,0.12);
+  --deno-dim2: rgba(1,179,138,0.05);
+  --node: #5fa04e;
+  --node-dim: rgba(95,160,78,0.1);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.08);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.08);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.08);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251,191,36,0.08);
+  --text: #b8cce0;
+  --text-muted: #3a5570;
+  --text-dim: #0f1e30;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --r: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+}
+
+header {
+  border-bottom: 1px solid var(--border2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,8,15,0.96);
+  backdrop-filter: blur(12px);
+}
+
+.header-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--deno);
+  background: var(--deno-dim2);
+  border: 1px solid rgba(1,179,138,0.3);
+  border-radius: 3px;
+  padding: 3px 9px;
+}
+
+.logo-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.logo-text strong { color: var(--deno); font-weight: 500; }
+
+.wrapper {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* HERO */
+.hero {
+  padding: 50px 0 38px;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 32px;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--deno);
+  margin-bottom: 14px;
+  opacity: 0.8;
+}
+
+h1 {
+  font-size: clamp(22px, 3.4vw, 32px);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+}
+
+h1 em { font-style: normal; color: var(--deno); }
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 600px;
+  line-height: 1.75;
+  margin-bottom: 22px;
+}
+
+.hero-sub strong { color: var(--text); }
+
+.stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 0; }
+
+.stat-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sc-val {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--deno);
+  line-height: 1;
+}
+
+.sc-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* SECTION */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.sec-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--deno);
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.sec-rule { flex: 1; height: 1px; background: var(--border2); }
+
+.content-section { margin-bottom: 52px; }
+
+/* PROSE */
+p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.85;
+  margin-bottom: 12px;
+  max-width: 800px;
+}
+
+p strong { color: var(--text); }
+
+p code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--deno);
+  background: var(--deno-dim2);
+  border-radius: 3px;
+  padding: 1px 6px;
+  border: 1px solid rgba(1,179,138,0.15);
+}
+
+/* CODE BLOCKS */
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--deno);
+  border-radius: 5px;
+  padding: 16px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 14px 0;
+  color: var(--text-muted);
+}
+
+.ck  { color: var(--deno); }
+.cf  { color: var(--blue); }
+.cs  { color: var(--yellow); }
+.cm  { color: var(--text-dim); }
+.ct  { color: var(--orange); }
+
+/* COMPARISON TABLE */
+.cmp-table {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.cmp-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 1fr;
+  border-bottom: 1px solid var(--border2);
+}
+
+.cmp-row:last-child { border-bottom: none; }
+.cmp-row.cmp-head { background: var(--surface2); }
+
+.cmp-cell {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+}
+
+.cmp-cell:last-child { border-right: none; }
+.cmp-head .cmp-cell {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.b-deno   { color: var(--deno);   background: var(--deno-dim2); border-color: rgba(1,179,138,0.25); }
+.b-node   { color: var(--node);   background: var(--node-dim);  border-color: rgba(95,160,78,0.25); }
+.b-both   { color: var(--blue);   background: var(--blue-dim);  border-color: rgba(96,165,250,0.25); }
+.b-yellow { color: var(--yellow); background: var(--yellow-dim);border-color: rgba(251,191,36,0.25); }
+.b-red    { color: var(--red);    background: var(--red-dim);   border-color: rgba(248,113,113,0.25); }
+
+/* PERMISSION TABLE */
+.perm-table {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.pt-row {
+  display: grid;
+  grid-template-columns: 220px 200px 1fr;
+  border-bottom: 1px solid var(--border2);
+}
+
+.pt-row:last-child { border-bottom: none; }
+.pt-row.pt-head { background: var(--surface2); }
+
+.pt-cell {
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border2);
+}
+
+.pt-cell:last-child { border-right: none; }
+.pt-head .pt-cell { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+.pt-flag { color: var(--deno); }
+.pt-scope { color: var(--yellow); }
+
+/* FEATURE GRID */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 18px;
+  transition: border-color 0.15s;
+}
+
+.feature-card:hover { border-color: rgba(1,179,138,0.25); }
+
+.fc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.fc-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.fc-desc code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--deno);
+  background: var(--deno-dim2);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* TOOLS GRID */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.tool-card:hover { border-color: rgba(1,179,138,0.3); transform: translateY(-2px); }
+
+.tc-path { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+.tc-name { font-size: 13px; font-weight: 600; color: #fff; }
+.tc-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; flex: 1; }
+.tc-cta  { font-family: var(--mono); font-size: 11px; color: var(--deno); }
+
+/* DENSE BLOCK */
+.dense-block {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 22px;
+  margin-top: 14px;
+}
+
+.dense-block p { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border2); }
+.dense-block p:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+/* FAQ */
+.faq-list {
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 52px;
+}
+
+.faq-item { border-bottom: 1px solid var(--border2); }
+.faq-item:last-child { border-bottom: none; }
+
+.faq-q {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: none;
+  padding: 13px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--sans);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s;
+}
+
+.faq-q:hover { background: var(--deno-dim2); }
+.faq-arrow { font-family: var(--mono); font-size: 11px; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+.faq-a {
+  display: none;
+  padding: 0 18px 13px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  border-top: 1px solid var(--border2);
+  background: var(--bg);
+}
+
+.faq-item.open .faq-a { display: block; }
+.faq-a code { font-family: var(--mono); font-size: 11px; color: var(--deno); background: var(--deno-dim2); border-radius: 3px; padding: 1px 5px; }
+
+/* TAG CLOUD */
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 52px; }
+
+.tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 4px 12px;
+  cursor: default;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tag:hover { color: var(--deno); border-color: rgba(1,179,138,0.3); }
+
+hr.divider { border: none; border-top: 1px solid var(--border2); margin: 52px 0; }
+
+footer { border-top: 1px solid var(--border2); padding: 22px 0; position: relative; z-index: 1; }
+
+.footer-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+footer p { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin: 0; }
+
+@media (max-width: 680px) {
+  .cmp-row { grid-template-columns: 120px 1fr 1fr; font-size: 12px; }
+  .pt-row  { grid-template-columns: 140px 1fr 1fr; font-size: 10px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .tools-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Deno.js – Complete Reference Guide",
+  "description": "What is Deno.js, how the permission model works, Deno vs Node.js comparison, TypeScript support, standard library, Fresh framework, and code examples.",
+  "keywords": "deno.js, deno js, what is deno, deno vs node, deno permission model, deno typescript runtime"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Deno.js?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Deno is a modern JavaScript and TypeScript runtime built on V8 and Rust. Created by Ryan Dahl (the original creator of Node.js), Deno addresses Node.js design decisions he regretted: it has a built-in permission model requiring explicit grants for file, network, and environment access; it uses ES modules natively; it supports TypeScript without a build step; and it has no node_modules — dependencies are imported by URL."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is Deno different from Node.js?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key differences: (1) Security — Deno is secure by default; network, file system, and environment access require explicit --allow flags. Node.js grants all permissions by default. (2) TypeScript — Deno runs TypeScript natively without tsc or ts-node. Node.js requires a build step. (3) Modules — Deno uses ES modules and URL imports. Node.js uses CommonJS (require). (4) No node_modules — Deno caches dependencies globally. (5) Standard library — Deno has a built-in standard library. (6) Built-in tooling — Deno includes a formatter, linter, test runner, and bundler."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Deno permission model?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Deno's permission model requires explicit flags to access system resources. By default a Deno program cannot read files, make network requests, access environment variables, run subprocesses, or load dynamic libraries. Use flags like --allow-read, --allow-net, --allow-env, --allow-run to grant access. You can scope permissions: --allow-read=/tmp only allows reading from /tmp. --allow-net=api.example.com only allows connections to that domain."
+      }
+    }
+  ]
+}
+</script>
+
 </head>
 
 <body>
-
 <header>
-    <h1>Deno Tools – Performance, Security & Runtime Analysis</h1>
-    <p>
-        A powerful suite of <strong>Deno runtime tools</strong> designed to help developers
-        analyze <strong>performance, memory usage, security, permissions, and module behavior</strong>
-        in modern JavaScript and TypeScript applications.
-    </p>
+  <div class="header-inner">
+    <span class="logo-pill">Deno</span>
+    <span class="logo-text"><strong>deno.js</strong> &middot; runtime reference</span>
+  </div>
 </header>
 
-<section>
-    <h2>⚡ Performance & Profiling</h2>
-    <ul>
-        <li><a href="/deno-tools/perf/">Performance Analyzer</a> – Measure execution performance</li>
-        <li><a href="/deno-tools/profiler/">Profiler Tool</a> – Analyze CPU and runtime behavior</li>
-        <li><a href="/deno-tools/memory/">Memory Analyzer</a> – Track memory usage and leaks</li>
-    </ul>
-</section>
+<div class="wrapper">
 
-<section>
-    <h2>🧠 Modules & Dependency Management</h2>
-    <ul>
-        <li><a href="/deno-tools/dep-graph/">Dependency Graph Tool</a> – Visualize module dependencies</li>
-        <li><a href="/deno-tools/module-loader/">Module Loader Analyzer</a> – Inspect module resolution</li>
-        <li><a href="/deno-tools/importmap/">Import Map Tool</a> – Manage module imports</li>
-    </ul>
-</section>
+  <!-- HERO -->
 
-<section>
-    <h2>🔐 Security & Permissions</h2>
-    <ul>
-        <li><a href="/deno-tools/permission/">Permission Analyzer</a> – Analyze permission usage</li>
-        <li><a href="/deno-tools/security/">Security Tool</a> – Evaluate runtime security</li>
-        <li><a href="/deno-tools/sandbox/">Sandbox Analyzer</a> – Test isolation and sandboxing</li>
-    </ul>
-</section>
-
-<section>
-    <h2>🌐 Networking & APIs</h2>
-    <ul>
-        <li><a href="/deno-tools/http/">HTTP Tool</a> – Analyze server performance</li>
-        <li><a href="/deno-tools/ws/">WebSocket Tool</a> – Test real-time communication</li>
-    </ul>
-</section>
-
-<section>
-    <h2>📁 File System & Runtime</h2>
-    <ul>
-        <li><a href="/deno-tools/fs/">File System Tool</a> – Analyze file operations</li>
-    </ul>
-</section>
-
-<section>
-    <h2>🚀 Deployment & Execution</h2>
-    <ul>
-        <li><a href="/deno-tools/deploy/">Deploy Tool</a> – Analyze deployment performance</li>
-    </ul>
-</section>
-
-<section>
-    <h2>📊 What Do These Tools Help You Analyze?</h2>
-    <p>
-        These <strong>Deno tools</strong> help you:
+  <section class="hero">
+    <p class="hero-eyebrow">// JavaScript &amp; TypeScript Runtime</p>
+    <h1><em>Deno.js</em> — Modern JavaScript Runtime<br>Built on V8 &amp; Rust</h1>
+    <p class="hero-sub">
+      <strong>Deno</strong> is a secure JavaScript and TypeScript runtime created by Ryan Dahl. No node_modules, native TypeScript, built-in permissions, and a standard library — designed to fix Node.js's pain points.
     </p>
-    <ul>
-        <li>Measure runtime performance and memory usage</li>
-        <li>Analyze module loading and dependencies</li>
-        <li>Understand Deno’s permission-based security model</li>
-        <li>Debug HTTP and WebSocket applications</li>
-        <li>Optimize deployment and execution</li>
-    </ul>
-</section>
+    <div class="stat-row">
+      <div class="stat-chip"><span class="sc-val">Rust</span><span class="sc-lbl">core language</span></div>
+      <div class="stat-chip"><span class="sc-val">V8</span><span class="sc-lbl">js engine</span></div>
+      <div class="stat-chip"><span class="sc-val">Native</span><span class="sc-lbl">TypeScript</span></div>
+      <div class="stat-chip"><span class="sc-val">Secure</span><span class="sc-lbl">by default</span></div>
+    </div>
+  </section>
 
-<section>
-    <h2>🚀 Long-Tail Keywords & Search Intent</h2>
-    <ul>
-        <li>deno performance analysis tool runtime optimization</li>
-        <li>deno permission model explained security sandbox</li>
-        <li>deno dependency graph visualization modules</li>
-        <li>deno http server performance benchmark</li>
-        <li>deno vs node performance and security comparison</li>
-        <li>deno memory leak detection tool</li>
-    </ul>
-</section>
+  <!-- WHAT IS DENO -->
 
-<section>
-    <h2>🧠 Why Deno Tools Matter</h2>
-    <p>
-        Deno introduces a modern runtime with built-in security and TypeScript support.
-        These tools help developers understand and optimize its unique features.
-    </p>
-</section>
+  <section class="content-section">
+    <div class="sec-head">
+      <span class="sec-label">What is Deno.js</span>
+      <span class="sec-rule"></span>
+    </div>
 
-<section>
-    <h2>❓ Frequently Asked Questions</h2>
 
-    <h3>What is Deno?</h3>
-    <p>
-        Deno is a modern JavaScript runtime with built-in security and TypeScript support.
-    </p>
+<p>
+  <strong>Deno</strong> is a JavaScript and TypeScript runtime built on V8 (Google's JavaScript engine) and Rust. It was created by <strong>Ryan Dahl</strong> — the original creator of Node.js — and first released in 2018. Deno was designed to address design decisions in Node.js that Dahl considered mistakes in hindsight.
+</p>
 
-    <h3>How is Deno different from Node.js?</h3>
-    <p>
-        Deno includes a permission system, secure defaults, and native TypeScript support.
-    </p>
+<p>
+  The name Deno is an anagram of Node. Unlike Node.js, Deno runs <strong>TypeScript natively</strong> without a compilation step, uses <strong>ES modules</strong> instead of CommonJS, imports dependencies via URL instead of npm, and has a built-in permission model that prevents access to file system, network, and environment by default.
+</p>
 
-    <h3>What is the Deno permission model?</h3>
-    <p>
-        It restricts access to system resources unless explicitly allowed.
-    </p>
+<div class="code-block"><span class="cm">// Run Deno without npm, without node_modules</span>
 
-    <h3>Can Deno be used in production?</h3>
-    <p>
-        Yes. Deno is increasingly used for backend services and edge applications.
-    </p>
-</section>
+
+<span class="cm">// Install: curl -fsSL https://deno.land/install.sh | sh</span>
+
+<span class="cm">// hello.ts — TypeScript runs natively</span>
+<span class="ck">const</span> message: <span class="ct">string</span> = <span class="cs">“Hello from Deno.js!”</span>;
+<span class="cf">console</span>.log(message);
+
+<span class="cm">// deno run hello.ts  →  Hello from Deno.js!</span>
+
+<span class="cm">// Import from URL — no npm install needed</span>
+<span class="ck">import</span> { <span class="cf">serve</span> } <span class="ck">from</span> <span class="cs">“https://deno.land/std@0.220.0/http/server.ts”</span>;
+
+<span class="cf">serve</span>((<span class="ct">req</span>) => <span class="ck">new</span> <span class="cf">Response</span>(<span class="cs">“Hello World”</span>), { port: <span class="cs">8000</span> });
+<span class="cm">// deno run –allow-net server.ts</span></div>
+
+
+<p>
+  Deno 2.0 (released 2024) introduced <strong>npm compatibility</strong> — you can now import npm packages with <code>npm:package-name</code> syntax, making migration from Node.js easier while keeping Deno's security model.
+</p>
+
+
+  </section>
+
+  <!-- PERMISSION MODEL -->
+
+  <section class="content-section">
+    <div class="sec-head">
+      <span class="sec-label">Deno permission model</span>
+      <span class="sec-rule"></span>
+    </div>
+
+
+<p>
+  Deno's most distinctive feature is its <strong>security-first permission model</strong>. Every Deno script runs in a sandbox by default — it cannot access the file system, make network requests, read environment variables, or spawn subprocesses unless you explicitly grant those permissions via command-line flags.
+</p>
+
+<div class="perm-table">
+  <div class="pt-row pt-head">
+    <div class="pt-cell">Permission</div>
+    <div class="pt-cell">Flag</div>
+    <div class="pt-cell">Scope example</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">File system read</div>
+    <div class="pt-cell pt-flag">--allow-read</div>
+    <div class="pt-cell pt-scope">--allow-read=/tmp (only /tmp)</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">File system write</div>
+    <div class="pt-cell pt-flag">--allow-write</div>
+    <div class="pt-cell pt-scope">--allow-write=/var/log</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">Network access</div>
+    <div class="pt-cell pt-flag">--allow-net</div>
+    <div class="pt-cell pt-scope">--allow-net=api.github.com</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">Environment variables</div>
+    <div class="pt-cell pt-flag">--allow-env</div>
+    <div class="pt-cell pt-scope">--allow-env=PORT,HOME</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">Subprocess execution</div>
+    <div class="pt-cell pt-flag">--allow-run</div>
+    <div class="pt-cell pt-scope">--allow-run=git,curl</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">Dynamic library loading</div>
+    <div class="pt-cell pt-flag">--allow-ffi</div>
+    <div class="pt-cell pt-scope">--allow-ffi=/usr/lib</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">System info (hostname, etc.)</div>
+    <div class="pt-cell pt-flag">--allow-sys</div>
+    <div class="pt-cell pt-scope">--allow-sys=hostname</div>
+  </div>
+  <div class="pt-row">
+    <div class="pt-cell">All permissions (dev only)</div>
+    <div class="pt-cell pt-flag">--allow-all / -A</div>
+    <div class="pt-cell pt-scope">Never use in production</div>
+  </div>
+</div>
+
+<div class="code-block"><span class="cm">// Request permissions at runtime (interactive)</span>
+
+
+<span class="ck">const</span> status = <span class="ck">await</span> Deno.<span class="cf">permissions</span>.<span class="cf">request</span>({ name: <span class="cs">“read”</span>, path: <span class="cs">”./data”</span> });
+<span class="ck">if</span> (status.state === <span class="cs">“granted”</span>) {
+<span class="ck">const</span> data = <span class="ck">await</span> Deno.<span class="cf">readTextFile</span>(<span class="cs">”./data/config.json”</span>);
+}
+
+<span class="cm">// Check a permission without prompting</span>
+<span class="ck">const</span> netPerm = <span class="ck">await</span> Deno.<span class="cf">permissions</span>.<span class="cf">query</span>({ name: <span class="cs">“net”</span>, host: <span class="cs">“api.example.com”</span> });
+<span class="cf">console</span>.log(netPerm.state); <span class="cm">// “granted” | “denied” | “prompt”</span></div>
+
+  </section>
+
+  <!-- DENO VS NODE -->
+
+  <section class="content-section">
+    <div class="sec-head">
+      <span class="sec-label">Deno vs Node.js</span>
+      <span class="sec-rule"></span>
+    </div>
+
+
+<div class="cmp-table">
+  <div class="cmp-row cmp-head">
+    <div class="cmp-cell">Feature</div>
+    <div class="cmp-cell" style="color:var(--deno)">Deno</div>
+    <div class="cmp-cell" style="color:var(--node)">Node.js</div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Security</div>
+    <div class="cmp-cell"><span class="badge b-deno">Secure by default</span></div>
+    <div class="cmp-cell"><span class="badge b-red">All access by default</span></div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">TypeScript</div>
+    <div class="cmp-cell"><span class="badge b-deno">Native, no build step</span></div>
+    <div class="cmp-cell"><span class="badge b-yellow">Needs tsc / ts-node</span></div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Module system</div>
+    <div class="cmp-cell">ES Modules + URL imports</div>
+    <div class="cmp-cell">CommonJS (require) + ESM</div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Package manager</div>
+    <div class="cmp-cell">URL imports + deno.json</div>
+    <div class="cmp-cell">npm / yarn / pnpm</div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">node_modules</div>
+    <div class="cmp-cell"><span class="badge b-deno">None (global cache)</span></div>
+    <div class="cmp-cell"><span class="badge b-yellow">Per-project folder</span></div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Built-in tooling</div>
+    <div class="cmp-cell">fmt, lint, test, bundle, bench</div>
+    <div class="cmp-cell">Needs ESLint, Prettier, Jest</div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Core language</div>
+    <div class="cmp-cell">Rust</div>
+    <div class="cmp-cell">C++</div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">npm compatibility</div>
+    <div class="cmp-cell"><span class="badge b-deno">Deno 2.0+ (npm: prefix)</span></div>
+    <div class="cmp-cell"><span class="badge b-node">Full native support</span></div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Ecosystem size</div>
+    <div class="cmp-cell"><span class="badge b-yellow">Growing</span></div>
+    <div class="cmp-cell"><span class="badge b-node">Very large (npm)</span></div>
+  </div>
+  <div class="cmp-row">
+    <div class="cmp-cell" style="color:var(--text);">Edge deployment</div>
+    <div class="cmp-cell"><span class="badge b-deno">Deno Deploy</span></div>
+    <div class="cmp-cell">Vercel / Cloudflare Workers</div>
+  </div>
+</div>
+
+
+  </section>
+
+  <!-- BUILT-IN FEATURES -->
+
+  <section class="content-section">
+    <div class="sec-head">
+      <span class="sec-label">Deno built-in features</span>
+      <span class="sec-rule"></span>
+    </div>
+
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <p class="fc-title">Native TypeScript</p>
+    <p class="fc-desc">Run <code>.ts</code> files directly. No <code>tsc</code>, no <code>ts-node</code>, no <code>tsconfig.json</code> required. Deno transpiles TypeScript internally using swc. Type-check with <code>deno check file.ts</code>.</p>
+  </div>
+  <div class="feature-card">
+    <p class="fc-title">Built-in Test Runner</p>
+    <p class="fc-desc"><code>deno test</code> runs tests without Jest, Mocha, or Vitest. Uses <code>Deno.test()</code> with built-in assertion library from <code>@std/assert</code>. Supports async tests and subtests natively.</p>
+  </div>
+  <div class="feature-card">
+    <p class="fc-title">Formatter &amp; Linter</p>
+    <p class="fc-desc"><code>deno fmt</code> formats code (no Prettier needed). <code>deno lint</code> runs a built-in linter with configurable rules. Both are configured in <code>deno.json</code>.</p>
+  </div>
+  <div class="feature-card">
+    <p class="fc-title">Standard Library</p>
+    <p class="fc-desc">Deno has a maintained standard library at <code>jsr:@std</code> covering HTTP, path, datetime, assert, collections, streams, CSV, YAML, and more — all reviewed and typed.</p>
+  </div>
+  <div class="feature-card">
+    <p class="fc-title">Web-Compatible APIs</p>
+    <p class="fc-desc">Deno implements browser-compatible APIs: <code>fetch</code>, <code>Request</code>, <code>Response</code>, <code>URL</code>, <code>TextEncoder</code>, <code>crypto</code>, <code>localStorage</code>, Web Workers. Code written for Deno often runs in browsers too.</p>
+  </div>
+  <div class="feature-card">
+    <p class="fc-title">JSR Package Registry</p>
+    <p class="fc-desc">JSR (JavaScript Registry) is Deno's modern package registry, supporting TypeScript natively and working across Deno, Node.js, Bun, and browsers. Import with <code>import {} from "jsr:@scope/package"</code>.</p>
+  </div>
+</div>
+```
+
+  </section>
+
+  <!-- TOOLS -->
+
+  <section class="content-section">
+    <div class="sec-head">
+      <span class="sec-label">Deno analysis tools</span>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="tools-grid">
+      <a class="tool-card" href="perf/">
+        <span class="tc-path">perf/</span>
+        <span class="tc-name">Performance Analyzer</span>
+        <span class="tc-desc">Measure Deno execution performance and runtime benchmarks.</span>
+        <span class="tc-cta">Open &rarr;</span>
+      </a>
+      <a class="tool-card" href="permission/">
+        <span class="tc-path">permission/</span>
+        <span class="tc-name">Permission Analyzer</span>
+        <span class="tc-desc">Analyze permission usage and security requirements for Deno scripts.</span>
+        <span class="tc-cta">Open &rarr;</span>
+      </a>
+      <a class="tool-card" href="memory/">
+        <span class="tc-path">memory/</span>
+        <span class="tc-name">Memory Analyzer</span>
+        <span class="tc-desc">Track memory usage and detect leaks in Deno applications.</span>
+        <span class="tc-cta">Open &rarr;</span>
+      </a>
+      <a class="tool-card" href="dep-graph/">
+        <span class="tc-path">dep-graph/</span>
+        <span class="tc-name">Dependency Graph</span>
+        <span class="tc-desc">Visualize Deno module dependencies and import chains.</span>
+        <span class="tc-cta">Open &rarr;</span>
+      </a>
+      <a class="tool-card" href="security/">
+        <span class="tc-path">security/</span>
+        <span class="tc-name">Security Tool</span>
+        <span class="tc-desc">Evaluate runtime security and permission requirements.</span>
+        <span class="tc-cta">Open &rarr;</span>
+      </a>
+      <a class="tool-card" href="module-loader/">
+        <span class="tc-path">module-loader/</span>
+        <span class="tc-name">Module Loader Analyzer</span>
+        <span class="tc-desc">Inspect Deno module resolution and caching behavior.</span>
+        <span class="tc-cta">Open &rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+
+  <div class="sec-head">
+    <span class="sec-label">Frequently Asked Questions</span>
+    <span class="sec-rule"></span>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">What is Deno.js?<span class="faq-arrow">&#9660;</span></button>
+      <div class="faq-a">Deno is a secure JavaScript and TypeScript runtime built on V8 and Rust, created by Ryan Dahl. It runs TypeScript natively, has a built-in permission model (no file/network/env access by default), uses ES modules and URL-based imports instead of node_modules, and ships with built-in tooling for testing, formatting, and linting. Deno 2.0 added npm package compatibility.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">How is Deno different from Node.js?<span class="faq-arrow">&#9660;</span></button>
+      <div class="faq-a">Key differences: Deno is secure by default — scripts need explicit <code>--allow-read</code>, <code>--allow-net</code> etc. to access resources. Deno runs TypeScript natively without tsc. Deno uses ES modules (import/export) exclusively, not CommonJS (require). No node_modules — dependencies are cached globally. Deno ships a standard library, formatter, linter, and test runner. Node.js has a much larger ecosystem and better legacy compatibility.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Should I use Deno or Node.js in 2025?<span class="faq-arrow">&#9660;</span></button>
+      <div class="faq-a">Use Node.js when: you need a large npm ecosystem, you're maintaining existing Node.js code, your team knows Node.js well, or you need maximum package compatibility. Use Deno when: security matters (sandboxed execution by default), you want TypeScript without a build step, you're building edge/serverless functions (Deno Deploy), or you want a batteries-included runtime without configuring ESLint, Prettier, Jest separately. Deno 2.0 significantly closed the compatibility gap with npm.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">How do I install Deno?<span class="faq-arrow">&#9660;</span></button>
+      <div class="faq-a">macOS/Linux: <code>curl -fsSL https://deno.land/install.sh | sh</code>. Windows (PowerShell): <code>irm https://deno.land/install.ps1 | iex</code>. Homebrew: <code>brew install deno</code>. Verify with <code>deno --version</code>. Run a TypeScript file: <code>deno run file.ts</code>. Run with network access: <code>deno run --allow-net server.ts</code>.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">What is Deno Fresh?<span class="faq-arrow">&#9660;</span></button>
+      <div class="faq-a">Fresh is the official full-stack web framework for Deno, designed for Deno Deploy edge deployments. It uses islands architecture — all rendering is server-side by default, with optional client-side hydration for interactive components. No build step, no bundler, instant startup. Uses JSX/TSX with Preact. Fresh is the Deno equivalent of Next.js for Node.js.</div>
+    </div>
+  </div>
+
+  <!-- TAGS -->
+
+  <div class="tag-cloud">
+    <span class="tag">deno.js</span>
+    <span class="tag">deno js runtime</span>
+    <span class="tag">what is deno</span>
+    <span class="tag">deno vs node.js</span>
+    <span class="tag">deno permission model</span>
+    <span class="tag">deno typescript native</span>
+    <span class="tag">deno install</span>
+    <span class="tag">deno fresh framework</span>
+    <span class="tag">deno url imports</span>
+    <span class="tag">deno 2.0 npm</span>
+    <span class="tag">deno standard library</span>
+    <span class="tag">deno secure by default</span>
+  </div>
+
+</div>
 
 <footer>
-    <p>
-        Build secure and high-performance applications with advanced <strong>Deno runtime tools</strong>.
-    </p>
+  <div class="footer-inner">
+    <p>deno.js reference &middot; runtime guide &middot; permission model &middot; vs node</p>
+    <p>tools &middot; performance &middot; security &middot; modules &middot; github pages</p>
+  </div>
 </footer>
+
+<script>
+function toggleFaq(btn) {
+  btn.parentElement.classList.toggle('open');
+}
+</script>
 
 </body>
 </html>
